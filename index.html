@@ -58,6 +58,8 @@ h1 small{display:block;font-size:.42em;color:var(--sky);text-shadow:none;margin-
 .dot.rin{background:#17171b;z-index:2}
 .dot.sumi{background:#9b6bff}
 #timeBox{display:flex;gap:8px;align-items:flex-start}
+#fsBtn{pointer-events:auto;height:42px;padding:0 10px;border-radius:12px;border:2px solid var(--paper);background:rgba(21,21,24,.55);font-weight:800;font-size:13px}
+#toast{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 24px);transform:translateX(-50%);z-index:70;background:rgba(255,250,242,.97);color:var(--ink);border-radius:14px;padding:10px 16px;font-size:14px;font-weight:800;line-height:1.5;max-width:min(520px,calc(100vw - 32px));text-align:center;box-shadow:0 6px 0 rgba(0,0,0,.25)}
 #pauseBtn{pointer-events:auto;width:42px;height:42px;border-radius:12px;border:2px solid var(--paper);background:rgba(21,21,24,.55);font-weight:800;font-size:15px}
 #combo{position:fixed;right:max(14px,env(safe-area-inset-right));top:calc(env(safe-area-inset-top,0px) + 62px);z-index:10;pointer-events:none;text-align:right;
   font-family:"Dela Gothic One",sans-serif;color:var(--gold);text-shadow:0 3px 0 #b8457c;font-size:26px;line-height:1}
@@ -120,6 +122,7 @@ h1 small{display:block;font-size:.42em;color:var(--sky);text-shadow:none;margin-
   <div id="race"><div class="track"><i class="dot sumi" id="sDot">す</i><i class="dot rin" id="rDot">リ</i><span class="flag">ゴール</span></div></div>
   <div id="timeBox">
     <div class="stat"><span class="k">タイム</span><b id="timeN">0:00.0</b></div>
+    <button id="fsBtn" class="fsBtn" aria-label="全画面">全画面</button>
     <button id="pauseBtn" aria-label="ひとやすみ">II</button>
   </div>
 </div>
@@ -142,6 +145,7 @@ h1 small{display:block;font-size:.42em;color:var(--sky);text-shadow:none;margin-
         <button class="btn primary" id="startBtn">スタート</button>
         <button class="btn" id="howBtn">あそびかた</button>
         <button class="btn" id="soundBtn">音：ON</button>
+        <button class="btn fsBtn" id="fsBtnT">全画面</button>
       </div>
       <p class="best" id="titleBest"></p>
     </div>
@@ -174,6 +178,7 @@ h1 small{display:block;font-size:.42em;color:var(--sky);text-shadow:none;margin-
     </div>
     <div class="row" style="justify-content:center;margin-top:10px">
       <button class="btn" id="soundBtn2">音：ON</button>
+      <button class="btn fsBtn" id="fsBtnP">全画面</button>
       <button class="btn" id="quitBtn">タイトルへ</button>
     </div>
   </div>
@@ -199,6 +204,7 @@ h1 small{display:block;font-size:.42em;color:var(--sky);text-shadow:none;margin-
   </div>
 </section>
 
+<div id="toast" hidden></div>
 <div id="rotate"><div class="phone"></div>スマホを横向きにしてね</div>
 
 <script>
@@ -215,7 +221,7 @@ const hash=i=>{let x=Math.sin(i*127.1+311.7)*43758.5453;return x-Math.floor(x);}
 const store={get(k){try{return JSON.parse(localStorage.getItem(k));}catch(e){return null;}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}};
 
 /* ================= ワールド定義 ================= */
-const SKY_START=22000, SEA_START=36000, G2_START=50000, GOAL=60000;
+const SKY_START=22000, SEA_START=36000, G2_START=50000, GOAL=68000;
 const SKY_FLOOR=250, SKY_TOP=-1300, SEA_Y=400, SEA_BED=1750;
 const secAt=x=>x<SKY_START?0:x<SEA_START?1:x<G2_START?2:3;
 
@@ -233,7 +239,7 @@ function makeTerrain(pts){
     slope(x){return (this.y(x+6)-this.y(x-6))/12;}};
 }
 const T1=makeTerrain([[-1500,0],[1400,0],[2200,-140],[3000,200],[4900,200],[5500,-60],[6000,-280,'l'],[6300,260],[7600,260],[8600,520],[10700,520],[11400,180],[12900,180],[13800,560],[14600,700],[16700,700],[17300,420],[17900,200,'l'],[18400,700],[19700,700],[20400,520],[21000,520],[21600,40,'l'],[22300,320],[23500,320]]);
-const T2=makeTerrain([[49000,300],[50800,300],[51500,560],[52900,560],[53500,300],[54300,300],[54900,-40,'l'],[55300,600],[57000,600],[57600,380],[62500,380]]);
+const T2=makeTerrain([[49000,300],[50800,300],[51500,560],[52900,560],[53500,300],[54300,300],[54900,-40,'l'],[55300,600],[57000,600],[57600,380],[58300,380],[58800,300],[61500,-1060,'l'],[61900,-1110],[62500,-1110],[62900,-1060],[66300,640,'l'],[66700,700],[70500,700]]);
 const TER=x=>x<SKY_START?T1:T2;
 
 const FOODS=[['🍙','🍗','🍕','🍔','🍟','🌭','🍛','🍤'],['🍰','🍩','🧁','🍦','🍭','🍮','🥞','🍪'],['🍣','🍤','🍱','🍥','🦐','🍙'],['🍜','🍛','🥩','🍗','🍕','🍔','🍝']];
@@ -245,7 +251,6 @@ function lineG(T,x0,x1,gap,off){for(let x=x0;x<=x1;x+=gap)addFood(x,T.y(x)-off);
 function arc(x0,x1,n,y0,yp,y1){for(let i=0;i<n;i++){const t=i/(n-1);addFood(lerp(x0,x1,t),(1-t)*(1-2*t)*y0+4*t*(1-t)*yp+t*(2*t-1)*y1);}}
 function wave(x0,x1,gap,base,amp,len){for(let x=x0;x<=x1;x+=gap)addFood(x,base+Math.sin((x-x0)/len*Math.PI*2)*amp);}
 function loopAt(T,x){const y=T.y(x),r=230;objs.push({k:'loop',x,y,r,used:false});for(let i=1;i<12;i++){const a=Math.PI/2-i/12*Math.PI*2;addFood(x+(r-48)*Math.cos(a),y-r+(r-48)*Math.sin(a));}}
-const robo=x=>enemies.push({k:'robo',x,y:0,vx:-70,ph:Math.random()*6,alive:true});
 const crow=(x,y)=>enemies.push({k:'crow',x,y,by:y,ph:Math.random()*6,alive:true});
 const fugu=(x,y)=>enemies.push({k:'fugu',x,y,by:y,ph:Math.random()*6,alive:true});
 
@@ -254,21 +259,21 @@ function buildLevel(){
   /* --- 1: ゆめの商店街 --- */
   lineG(T1,400,1300,75,70);
   arc(1450,2350,10,T1.y(1450)-70,T1.y(1900)-300,T1.y(2350)-70);
-  lineG(T1,2450,3200,70,60); objs.push({k:'dash',x:3300}); robo(2700);
-  loopAt(T1,4000); lineG(T1,4350,4850,70,60); robo(4750);
+  lineG(T1,2450,3200,70,60); objs.push({k:'dash',x:3300});
+  loopAt(T1,4000); lineG(T1,4350,4850,70,60);
   lineG(T1,5000,5900,70,60); objs.push({k:'ramp',x:6000});
   arc(6060,7300,14,-360,-660,T1.y(7300)-60); addFood(6650,-760,true);
-  lineG(T1,7450,8500,70,60); robo(7700);
+  lineG(T1,7450,8500,70,60);
   npcs.push({who:'kasumi',x:8300,y:T1.y(8300),shots:0,cd:0});
-  objs.push({k:'dash',x:8900}); loopAt(T1,9500); lineG(T1,9900,10600,70,60); robo(10300); robo(10520);
+  objs.push({k:'dash',x:8900}); loopAt(T1,9500); lineG(T1,9900,10600,70,60);
   lineG(T1,10800,11700,80,60); objs.push({k:'spring',x:11900});
   arc(11950,13000,14,T1.y(11950)-90,T1.y(12450)-600,T1.y(13000)-60);
   npcs.push({who:'soma',x:12750,y:T1.y(12750),line:'リン、おやつあげるよ〜'});
-  lineG(T1,13100,14500,65,60); robo(13600); robo(13900); robo(14300);
-  objs.push({k:'dash',x:15000}); loopAt(T1,15600); lineG(T1,16000,16600,70,60); robo(16300); robo(16470);
+  lineG(T1,13100,14500,65,60);
+  objs.push({k:'dash',x:15000}); loopAt(T1,15600); lineG(T1,16000,16600,70,60);
   lineG(T1,16800,17800,70,60); objs.push({k:'ramp',x:17900});
   arc(17960,19050,13,140,-300,T1.y(19050)-60); addFood(18450,-400,true);
-  lineG(T1,19150,20400,70,60); robo(19500); robo(19900); robo(20250);
+  lineG(T1,19150,20400,70,60);
   objs.push({k:'dash',x:20600}); lineG(T1,20700,21550,55,60); objs.push({k:'ramp',x:21600,mega:true});
   arc(21700,22700,12,-60,-760,-560);
   /* --- 2: 雲の上 --- */
@@ -291,12 +296,20 @@ function buildLevel(){
   wave(49200,49900,70,SEA_Y-120,120,700);
   /* --- 4: おうちへ --- */
   lineG(T2,50300,51300,70,60); objs.push({k:'dash',x:51800});
-  loopAt(T2,52300); lineG(T2,52650,53300,70,60); robo(53000);
+  loopAt(T2,52300); lineG(T2,52650,53300,70,60);
   lineG(T2,53600,54800,70,60); objs.push({k:'ramp',x:54900});
   arc(54960,56000,13,-120,-560,T2.y(56000)-60); addFood(55450,-640,true);
-  loopAt(T2,56500); lineG(T2,56850,57700,70,60); robo(57200);
-  objs.push({k:'dash',x:57850}); lineG(T2,57950,59900,60,60); robo(58300); robo(58700); robo(59250);
-  npcs.push({who:'kasumi',x:59400,y:T2.y(59400),shots:0,cd:0});
+  loopAt(T2,56500); lineG(T2,56850,57700,70,60);
+  lineG(T2,57800,58300,70,60);
+  // すごく長い上り坂
+  objs.push({k:'dash',x:58500}); lineG(T2,58600,61800,58,60); objs.push({k:'dash',x:59700}); objs.push({k:'dash',x:60800});
+  objs.push({k:'sign',x:58700,txt:'上り坂！'});
+  // 頂上
+  addFood(62200,-1420,true); lineG(T2,61950,62450,60,60); objs.push({k:'sign',x:62350,txt:'下り坂！'});
+  npcs.push({who:'kasumi',x:62300,y:T2.y(62300),shots:0,cd:0});
+  // すごく長い下り坂
+  objs.push({k:'dash',x:62700}); lineG(T2,62700,66400,52,60); arc(64200,65200,12,T2.y(64200)-60,T2.y(64700)-330,T2.y(65200)-60);
+  lineG(T2,66700,67900,60,60);
   objs.push({k:'goal',x:GOAL});
   totalFood=foods.length+26;
 }
@@ -429,7 +442,8 @@ function updRin(dt,I){
       if(I.pressed){doJump(true);jumped=true;}
       else{
         const s=T.slope(rin.x),c=1/Math.sqrt(1+s*s);
-        rin.sp+=1500*s*c*dt;rin.x+=rin.sp*c*dt;rin.y=T.y(rin.x);rin.rot=Math.atan(T.slope(rin.x));
+        rin.sp+=(s<0?420:1700)*s*c*dt;rin.x+=rin.sp*c*dt;rin.y=T.y(rin.x);rin.rot=Math.atan(T.slope(rin.x));
+        if(s>0.3&&rin.sp>1900&&Math.random()<0.6)part({x:rin.x-30,y:rin.y-4,vx:-rnd(200,500),vy:-rnd(60,220),g:600,c:pick(['#ffd23f','#ff9f1a','#fff']),s:rnd(3,7),life:.4,max:.4});
         if(Math.random()<rin.sp/4000)part({x:rin.x-20,y:rin.y-4,vx:-rnd(40,160),vy:-rnd(40,120),g:500,c:rin.sp>1500?'#ffd23f':'#fff3e0',s:rnd(3,6),life:.35,max:.35});
       }
     }
@@ -496,7 +510,7 @@ function updRin(dt,I){
     if(o.k!=='hoop'||o.used)continue;
     if(o.x>px&&o.x<=rin.x&&Math.abs(rinC().y-o.y)<125){o.used=true;rin.sp=Math.max(rin.sp,1850);rin.boost=1;AU.sfx('hoop');ring(o.x,o.y,'#ffd23f',120,0.5);score+=200;popT(o.x,o.y-140,'+200','#ffd23f');addCombo();shake=Math.max(shake,5);}
   }
-  rin.sp=clamp(rin.sp,480,2150);
+  rin.sp=clamp(rin.sp,480,2700);
   rin.ph+=dt*(rin.onG?rin.sp/260:2.4);
   if(rin.ball)rin.spin+=dt*20;
   if(!demo)topSp=Math.max(topSp,rin.sp);
@@ -534,11 +548,10 @@ function updWorld(dt){
   for(const e of enemies){
     if(!e.alive)continue;const dx=e.x-rin.x;if(dx<-800||dx>2600)continue;
     e.ph+=dt;
-    if(e.k==='robo'){e.x+=e.vx*dt;e.y=TER(e.x).y(e.x);}
-    else if(e.k==='crow'){e.x-=170*dt;e.y=e.by+Math.sin(e.ph*3)*40;}
+    if(e.k==='crow'){e.x-=170*dt;e.y=e.by+Math.sin(e.ph*3)*40;}
     else if(e.k==='fugu'){e.y=e.by+Math.sin(e.ph*2)*60;}
     else if(e.k==='bub'){e.x+=e.vx*dt;e.y+=e.vy*dt;e.life-=dt;if(e.life<=0){e.alive=false;continue;}}
-    const ey=e.k==='robo'?e.y-18:e.y,ddx=e.x-c.x,ddy=ey-c.y,r=e.k==='bub'?64:58;
+    const ddx=e.x-c.x,ddy=e.y-c.y,r=e.k==='bub'?64:58;
     if(ddx*ddx+ddy*ddy<r*r){if(atk)kill(e);else if(rin.inv<=0)hurt();}
   }
   for(const n of npcs){
@@ -555,7 +568,7 @@ function updWorld(dt){
 
 function updSumi(dt){
   if(demo)return;
-  if(sumi.x<GOAL+160){const d=rin.x-sumi.x;const sp=d>1400?1250:d<-1400?820:1000;sumi.x+=sp*dt;sumi.ph+=dt*3.4;}
+  if(sumi.x<GOAL+160){const d=rin.x-sumi.x;const sp=d>1400?1500:1300;sumi.x+=sp*dt;sumi.ph+=dt*3.4;}
   else sumi.ph+=dt;
   const s=secAt(sumi.x);sumi.y=s===0?T1.y(sumi.x):s===3?T2.y(sumi.x):s===1?-260+Math.sin(sumi.x/900)*200:950+Math.sin(sumi.x/800)*200;
   if(sumi.x>=GOAL&&sumiFinish===null)sumiFinish=tPlay;
@@ -576,7 +589,7 @@ function updParts(dt){
 function scale(){return (H/610)*cam.z;}
 function updCam(dt){
   const sec=secAt(rin.x);
-  const tz=1-clamp((rin.sp-850)/2800,0,0.2)-(sec===1||sec===2?0.08:0);cam.z=lerp(cam.z,tz,Math.min(1,2*dt));
+  const tz=1-clamp((rin.sp-850)/2800,0,0.28)-(sec===1||sec===2?0.08:0);cam.z=lerp(cam.z,tz,Math.min(1,2*dt));
   const S=scale(),lead=(W/S)*0.14+Math.max(0,rin.sp-800)*0.1;
   cam.x=lerp(cam.x,rin.x+lead,1-Math.exp(-9*dt));
   let ty=rin.y-70;if(sec===1)ty=clamp(ty,SKY_TOP+200,SKY_FLOOR-160);
@@ -814,16 +827,15 @@ function drawObj(o){
   else if(o.k==='ramp'){const y=TER(o.x).y(o.x);ctx.fillStyle='#6b4a2b';ctx.fillRect(o.x-6,y-(o.mega?170:110),8,o.mega?170:110);ctx.fillStyle=o.mega?'#e0262b':'#ffd23f';ctx.beginPath();ctx.roundRect(o.x-60,y-(o.mega?230:150),120,56,10);ctx.fill();
     ctx.fillStyle=o.mega?'#fff':'#231543';ctx.font='26px "Dela Gothic One",sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(o.mega?'そらへ！':'ジャンプ',o.x,y-(o.mega?202:122));}
   else if(o.k==='hoop'){ctx.save();ctx.translate(o.x,o.y);const p=1+Math.sin(tAll*6)*0.04;ctx.scale(p,p);ctx.globalAlpha=o.used?0.35:1;ctx.lineWidth=14;ctx.strokeStyle='#ffd23f';ctx.beginPath();ctx.ellipse(0,0,36,112,0,0,7);ctx.stroke();ctx.lineWidth=4;ctx.strokeStyle='#fff';ctx.beginPath();ctx.ellipse(0,0,36,112,0,-1.2,0.4);ctx.stroke();ctx.restore();ctx.globalAlpha=1;}
+  else if(o.k==='sign'){const y=TER(o.x).y(o.x);ctx.fillStyle='#6b4a2b';ctx.fillRect(o.x-5,y-120,10,120);ctx.fillStyle='#fff';ctx.strokeStyle='#e0262b';ctx.lineWidth=5;
+    ctx.beginPath();ctx.roundRect(o.x-80,y-178,160,58,12);ctx.fill();ctx.stroke();ctx.fillStyle='#e0262b';ctx.font='28px "Dela Gothic One",sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(o.txt,o.x,y-149);}
   else if(o.k==='goal'){const y=T2.y(o.x);ctx.fillStyle='#fff';ctx.fillRect(o.x-190,y-330,18,330);ctx.fillRect(o.x+172,y-330,18,330);
     for(let i=0;i<12;i++)for(let j=0;j<2;j++){ctx.fillStyle=(i+j)%2?'#231543':'#fff';ctx.fillRect(o.x-190+i*31.6,y-350+j*22,31.6,22);}
     ctx.fillStyle='#ff7eb6';ctx.beginPath();ctx.roundRect(o.x-110,y-420,220,64,14);ctx.fill();ctx.fillStyle='#fff';ctx.font='40px "Dela Gothic One",sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('ゴール',o.x,y-387);}
 }
 function drawEnemy(e){
   ctx.save();ctx.translate(e.x,e.y);
-  if(e.k==='robo'){ctx.fillStyle='#6f6a80';ctx.beginPath();ctx.ellipse(0,-14,44,16,0,0,7);ctx.fill();ctx.fillStyle='#9b97ab';ctx.beginPath();ctx.ellipse(0,-22,38,11,0,0,7);ctx.fill();
-    ctx.fillStyle=Math.sin(e.ph*10)>0?'#ff2d55':'#ffd23f';ctx.beginPath();ctx.arc(-18,-24,5,0,7);ctx.fill();
-    ctx.strokeStyle='#ffd23f';ctx.lineWidth=3;ctx.save();ctx.translate(-40,-4);ctx.rotate(e.ph*14);for(let i=0;i<4;i++){ctx.rotate(Math.PI/2);ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(12,0);ctx.stroke();}ctx.restore();}
-  else if(e.k==='crow'){const f=Math.sin(e.ph*14);ctx.fillStyle='#1d1830';ctx.beginPath();ctx.ellipse(0,0,30,17,0,0,7);ctx.fill();ctx.beginPath();ctx.arc(-26,-8,13,0,7);ctx.fill();
+  if(e.k==='crow'){const f=Math.sin(e.ph*14);ctx.fillStyle='#1d1830';ctx.beginPath();ctx.ellipse(0,0,30,17,0,0,7);ctx.fill();ctx.beginPath();ctx.arc(-26,-8,13,0,7);ctx.fill();
     ctx.beginPath();ctx.moveTo(-6,-6);ctx.lineTo(10,-40*f-6);ctx.lineTo(24,-4);ctx.fill();ctx.fillStyle='#ffb000';ctx.beginPath();ctx.moveTo(-38,-10);ctx.lineTo(-52,-5);ctx.lineTo(-38,-2);ctx.fill();ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(-29,-11,3.5,0,7);ctx.fill();}
   else if(e.k==='fugu'){const p=1+Math.sin(e.ph*4)*0.08;ctx.scale(p,p);ctx.fillStyle='#ffcf3f';ctx.strokeStyle='#d99a00';ctx.lineWidth=4;
     for(let i=0;i<12;i++){const a=i/12*Math.PI*2;ctx.beginPath();ctx.moveTo(Math.cos(a)*30,Math.sin(a)*30);ctx.lineTo(Math.cos(a)*44,Math.sin(a)*44);ctx.stroke();}
@@ -957,7 +969,25 @@ function showResult(){
   $('rBest').textContent=nb?'じこベスト更新！':bestText();
   scr('result');
 }
-$('startBtn').onclick=()=>{try{if(document.documentElement.requestFullscreen&&matchMedia('(pointer:coarse)').matches)document.documentElement.requestFullscreen().catch(()=>{});}catch(e){}startGame();};
+$('startBtn').onclick=startGame;
+/* 全画面 */
+const fsEl=()=>document.fullscreenElement||document.webkitFullscreenElement;
+let toastT=0;
+function toast(msg){const t=$('toast');t.textContent=msg;t.hidden=false;clearTimeout(toastT);toastT=setTimeout(()=>t.hidden=true,4200);}
+const fsNG=()=>toast('この端末・アプリでは全画面にできませんでした。スマホを横向きにしてブラウザで開くと広く遊べます。');
+function toggleFS(){
+  const d=document.documentElement;
+  try{
+    if(fsEl()){(document.exitFullscreen||document.webkitExitFullscreen).call(document);return;}
+    const req=d.requestFullscreen||d.webkitRequestFullscreen;if(!req){fsNG();return;}
+    const pr=req.call(d,{navigationUI:'hide'});
+    const ok=()=>{try{screen.orientation&&screen.orientation.lock&&screen.orientation.lock('landscape').catch(()=>{});}catch(e){}};
+    if(pr&&pr.then)pr.then(ok,fsNG);else ok();
+  }catch(e){fsNG();}
+}
+function fsLabel(){const on=!!fsEl();document.querySelectorAll('.fsBtn').forEach(b=>b.textContent=on?'全画面を戻す':'全画面');}
+['fullscreenchange','webkitfullscreenchange'].forEach(ev=>document.addEventListener(ev,()=>{fsLabel();setTimeout(resize,50);}));
+document.querySelectorAll('.fsBtn').forEach(b=>b.addEventListener('click',toggleFS));
 $('howBtn').onclick=()=>scr('howto');$('howClose').onclick=()=>scr(state==='pause'?'pause':'title');
 $('soundBtn').onclick=$('soundBtn2').onclick=()=>{AU.init();AU.set(!AU.on);};
 $('pauseBtn').onclick=pause;$('resumeBtn').onclick=resume;$('retryBtn').onclick=startGame;$('quitBtn').onclick=toTitle;
