@@ -133,7 +133,7 @@ h1 small{display:block;font-size:.42em;color:var(--sky);text-shadow:none;margin-
 
 <section class="screen" id="title">
   <div class="tw">
-    <canvas id="hero" width="560" height="420" aria-label="赤いスカーフをなびかせて走るリン"></canvas>
+    <canvas id="hero" width="560" height="420" aria-label="赤い首輪をつけて走るリン"></canvas>
     <div>
       <p class="kicker">リンの夢の中は、人間のごはん食べ放題。</p>
       <h1><small>ゆめの中を かけぬけろ</small>爆走！リンの<br>ごちそうドリーム</h1>
@@ -158,7 +158,7 @@ h1 small{display:block;font-size:.42em;color:var(--sky);text-shadow:none;margin-
       <li><b>海のステージ</b>：長押しで泳いで浮上。勢いよく水面から飛び出すとイルカジャンプ。</li>
       <li><b>ダッシュ</b>：左下のボタン。ごちそうを食べるとゲージがたまります。ダッシュ中は無敵で、敵を吹き飛ばせます。</li>
       <li>地上ではジャンプ中の体当たりでも敵を倒せます。ぶつかってもゲームオーバーにはなりません。</li>
-      <li>そうまに会うと7秒間<b>スーパーリン</b>。かすみの「コラ！」はよけるか、吹き飛ばそう。</li>
+      <li>そうまに会うと7秒間<b>スーパーリン</b>。かすみの💢マークはよけるか、吹き飛ばそう。</li>
       <li>パソコンでは スペース / ↑ でジャンプ、X / Shift でダッシュ、P でひとやすみ。</li>
     </ul>
     <button class="btn primary" id="howClose">わかった</button>
@@ -191,8 +191,6 @@ h1 small{display:block;font-size:.42em;color:var(--sky);text-shadow:none;margin-
       <div><dt>最高速度</dt><dd id="rSpd">0</dd></div>
       <div><dt>スコア</dt><dd id="rScore">0</dd></div>
     </dl>
-    <p class="line" id="rSumi"></p>
-    <p class="line" id="rFam"></p>
     <div class="row" style="margin-top:10px">
       <button class="btn primary" id="againBtn">もういちど走る</button>
       <button class="btn" id="toTitleBtn">タイトルへ</button>
@@ -261,11 +259,11 @@ function buildLevel(){
   lineG(T1,5000,5900,70,60); objs.push({k:'ramp',x:6000});
   arc(6060,7300,14,-360,-660,T1.y(7300)-60); addFood(6650,-760,true);
   lineG(T1,7450,8500,70,60); robo(7700);
-  npcs.push({who:'kasumi',x:8300,y:T1.y(8300),line:'リン！ 人間のごはんは食べちゃダメって言ってるでしょ！',shots:0,cd:0});
+  npcs.push({who:'kasumi',x:8300,y:T1.y(8300),shots:0,cd:0});
   objs.push({k:'dash',x:8900}); loopAt(T1,9500); lineG(T1,9900,10600,70,60); robo(10300); robo(10520);
   lineG(T1,10800,11700,80,60); objs.push({k:'spring',x:11900});
   arc(11950,13000,14,T1.y(11950)-90,T1.y(12450)-600,T1.y(13000)-60);
-  npcs.push({who:'soma',x:12750,y:T1.y(12750),line:'リン、おいで〜。これ、ないしょね'});
+  npcs.push({who:'soma',x:12750,y:T1.y(12750),line:'リン、おやつあげるよ〜'});
   lineG(T1,13100,14500,65,60); robo(13600); robo(13900); robo(14300);
   objs.push({k:'dash',x:15000}); loopAt(T1,15600); lineG(T1,16000,16600,70,60); robo(16300); robo(16470);
   lineG(T1,16800,17800,70,60); objs.push({k:'ramp',x:17900});
@@ -278,8 +276,8 @@ function buildLevel(){
   for(let i=0;i<8;i++){const x0=22900+i*1600;wave(x0,x0+1250,85,skyBase[i],170,1250);}
   [[24000,-350],[25800,-760],[28600,-300],[31000,-660],[33200,-960],[35000,-420]].forEach(([x,y])=>objs.push({k:'hoop',x,y,used:false}));
   [[24500,-560],[25200,-220],[26400,-900],[28000,-420],[29000,-720],[31600,-260],[32400,-860],[33800,-520],[34800,-220]].forEach(([x,y])=>crow(x,y));
-  npcs.push({who:'kasumi',x:27300,y:-180,line:'こら！ 空の上でもつまみ食いしないの！',shots:0,cd:0,cloud:true});
-  npcs.push({who:'yuichi',x:30300,y:-640,line:'……zzz（ポテチの袋が、空から落ちてきた）',cloud:true});
+  npcs.push({who:'kasumi',x:27300,y:-180,shots:0,cd:0,cloud:true});
+  npcs.push({who:'yuichi',x:30300,y:-640,cloud:true});
   addFood(29500,-1050,true); addFood(34200,-1100,true);
   /* --- 3: ゆめの海 --- */
   const seaBase=[820,1280,680,1100,1480,900,1200];
@@ -287,8 +285,8 @@ function buildLevel(){
   arc(38400,39300,10,SEA_Y+40,-160,SEA_Y+40); arc(43700,44600,10,SEA_Y+40,-160,SEA_Y+40); arc(47000,47900,10,SEA_Y+40,-160,SEA_Y+40);
   [[40500,1000],[46700,700]].forEach(([x,y])=>objs.push({k:'hoop',x,y,used:false,sea:true}));
   [[37900,900],[39900,1250],[41100,700],[42700,1350],[45000,1050],[46300,820],[47900,1420],[48600,900]].forEach(([x,y])=>fugu(x,y));
-  npcs.push({who:'kasumi',x:41900,y:SEA_Y,line:'リン！ おすしはダメ！ ぜったいダメ！',shots:0,cd:0,boat:true});
-  npcs.push({who:'soma',x:44300,y:SEA_Y,line:'がんばれリン！ おやつ投げるよ〜',boat:true});
+  npcs.push({who:'kasumi',x:41900,y:SEA_Y,shots:0,cd:0,boat:true});
+  npcs.push({who:'soma',x:44300,y:SEA_Y,line:'リン、おやつあげるよ〜',boat:true});
   addFood(42300,1600,true); addFood(48200,1550,true);
   wave(49200,49900,70,SEA_Y-120,120,700);
   /* --- 4: おうちへ --- */
@@ -298,14 +296,14 @@ function buildLevel(){
   arc(54960,56000,13,-120,-560,T2.y(56000)-60); addFood(55450,-640,true);
   loopAt(T2,56500); lineG(T2,56850,57700,70,60); robo(57200);
   objs.push({k:'dash',x:57850}); lineG(T2,57950,59900,60,60); robo(58300); robo(58700); robo(59250);
-  npcs.push({who:'kasumi',x:59400,y:T2.y(59400),line:'もう！ 夢の中くらい……いや、やっぱりダメ！',shots:0,cd:0});
+  npcs.push({who:'kasumi',x:59400,y:T2.y(59400),shots:0,cd:0});
   objs.push({k:'goal',x:GOAL});
   totalFood=foods.length+26;
 }
 
 /* ================= 状態 ================= */
 let state='title', demo=true;
-let rin, sumi, parts, banners, hist, scarf;
+let rin, sumi, parts, banners, hist;
 let tPlay=0,countT=0,score=0,eaten=0,combo=0,comboT=0,maxCombo=0,topSp=0;
 let shake=0,hitstop=0,timeScale=1,finishT=0,sumiFinish=null,rinFinish=null,sumiCd=0,lastLead=null,tAll=0;
 const inp={held:false,pressed:false,dash:false};
@@ -316,7 +314,7 @@ function resetWorld(isDemo){
   demo=isDemo; buildLevel();
   rin={x:0,y:0,sp:0,vy:0,onG:true,rot:0,ph:0,jumps:0,cut:false,glide:false,loop:null,dash:0,sup:0,inv:0,boost:0,gauge:60,inW:false,spin:0,ball:false};
   sumi={x:-150,y:0,ph:0};
-  parts=[];banners=[];hist=[];scarf=[];
+  parts=[];banners=[];hist=[];
   tPlay=0;score=0;eaten=0;combo=0;comboT=0;maxCombo=0;topSp=0;shake=0;hitstop=0;timeScale=1;finishT=0;sumiFinish=null;rinFinish=null;sumiCd=0;lastLead=null;
   cam.x=300;cam.y=-80;cam.z=1;
   if(isDemo){rin.sp=900;sumi.x=-99999;}
@@ -392,7 +390,7 @@ function say(who,txt){if(demo)return;const w=WHO[who];$('talkName').textContent=
   const t=$('talk');t.hidden=true;void t.offsetWidth;t.hidden=false;talkTimer=3.2;}
 
 /* ================= リンの更新 ================= */
-const rinC=()=>({x:rin.x+Math.sin(rin.rot)*38,y:rin.y-Math.cos(rin.rot)*38});
+const rinC=()=>({x:rin.x+Math.sin(rin.rot)*48,y:rin.y-Math.cos(rin.rot)*48});
 const attacking=()=>rin.dash>0||rin.sup>0||!!rin.loop||((secAt(rin.x)===0||secAt(rin.x)===3)&&!rin.onG)||(secAt(rin.x)===2&&!rin.inW);
 
 function doJump(first){
@@ -514,7 +512,7 @@ function eat(f){
 }
 function kill(e){
   e.alive=false;addCombo();score+=Math.round(100*mult());rin.gauge=Math.min(100,rin.gauge+6);
-  AU.sfx('boom');burst(e.x,e.y-15,20,e.k==='bub'?'#ff9ec7':'#ffb347',520,9);ring(e.x,e.y-15,'#fff',50,0.4);popT(e.x,e.y-70,e.k==='bub'?'はじいた！':'ドカン！','#fff',24);
+  AU.sfx('boom');burst(e.x,e.y-15,20,e.k==='bub'?'#ff9ec7':'#ffb347',520,9);ring(e.x,e.y-15,'#fff',50,0.4);popT(e.x,e.y-70,'ドカン！','#fff',24);
   shake=Math.max(shake,8);hitstop=0.045;
   const sec=secAt(rin.x);if((sec===0||sec===3)&&!rin.onG&&rin.dash<=0&&rin.sup<=0){rin.vy=-780;rin.jumps=1;rin.ball=true;}
 }
@@ -545,10 +543,10 @@ function updWorld(dt){
   }
   for(const n of npcs){
     if(n.done)continue;const d=n.x-rin.x;
-    if(!n.said&&d<1150){n.said=true;say(n.who,n.line);}
+    if(!n.said&&d<1150){n.said=true;if(n.line)say(n.who,n.line);}
     if(n.who==='kasumi'&&n.said&&n.shots<3&&d>300){n.cd-=dt;if(n.cd<=0){n.cd=0.55;n.shots++;
       const sx=n.x-50,sy=n.y-(n.boat?70:100),tt=Math.max(0.4,(sx-rin.x)/(rin.sp+280)),ty=rinC().y+rnd(-60,60);
-      enemies.push({k:'bub',x:sx,y:sy,vx:-280,vy:clamp((ty-sy)/tt,-520,520),ph:0,life:5,alive:true,txt:pick(['コラ！','ダメ！','めっ！','リン！'])});}}
+      enemies.push({k:'bub',x:sx,y:sy,vx:-280,vy:clamp((ty-sy)/tt,-520,520),ph:0,life:5,alive:true});}}
     if(n.who==='soma'&&d<40){n.done=true;startSuper();}
     if(n.who==='yuichi'&&d<650){n.done=true;for(let i=0;i<26;i++){foods.push({x:n.x+250+i*62,y:-1350-Math.random()*300,e:'🍟',big:false,alive:true,b:Math.random()*6,vy:rnd(60,200),fall:true});}}
   }
@@ -563,7 +561,6 @@ function updSumi(dt){
   if(sumi.x>=GOAL&&sumiFinish===null)sumiFinish=tPlay;
   if(state!=='play')return;
   const lead=rin.x>sumi.x;sumiCd-=dt;
-  if(lastLead!==null&&lead!==lastLead&&sumiCd<=0){say('sumire',lead?pick(['ちょっと！ 犬のくせに速すぎ！','待ちなさい、リン！','ずるい！ 今のなし！']):pick(['ふふん、お先に〜','やっぱり私のほうが上ね！']));sumiCd=7;}
   lastLead=lead;
 }
 
@@ -646,35 +643,37 @@ function drawDog(c,ps,ph,o){
   else{fa=0.7+0.6*s;ff=0.7+0.6*s2;ba=-0.7+0.5*s2;bf=-0.7+0.5*s;earA=-0.9;tail=0.5+Math.sin(ph*8)*0.15;}
   const leg=(hx,hy,a,front,near)=>{
     const b=front?(a>0?-a*0.85-0.15:0.25*a):(0.55+Math.max(0,-a)*0.2);
-    const x1=hx+Math.sin(a)*20,y1=hy+Math.cos(a)*20,x2=x1+Math.sin(a+b)*19,y2=y1+Math.cos(a+b)*19;
-    c.lineWidth=near?9.5:8.5;
+    const x1=hx+Math.sin(a)*27,y1=hy+Math.cos(a)*27,x2=x1+Math.sin(a+b)*26,y2=y1+Math.cos(a+b)*26;
+    c.lineWidth=near?8.5:7.5;
     if(front){c.strokeStyle=near?K:K2;c.beginPath();c.moveTo(hx,hy);c.lineTo(x1,y1);c.stroke();
       c.strokeStyle=near?Wt:W2;c.beginPath();c.moveTo(lerp(hx,x1,0.55),lerp(hy,y1,0.55));c.lineTo(x1,y1);c.lineTo(x2,y2);c.stroke();
       if(near&&!F){c.fillStyle='#2a2a30';for(let i=1;i<4;i++){c.beginPath();c.arc(lerp(x1,x2,i/4.5)+1.5,lerp(y1,y2,i/4.5),1.3,0,7);c.fill();}}}
     else{c.strokeStyle=near?K:K2;c.beginPath();c.moveTo(hx,hy);c.lineTo(x1,y1);c.lineTo(x2,y2);c.stroke();
-      c.strokeStyle=near?Wt:W2;c.lineWidth=near?9:8;c.beginPath();c.moveTo(lerp(x1,x2,0.72),lerp(y1,y2,0.72));c.lineTo(x2,y2);c.stroke();}
+      c.strokeStyle=near?Wt:W2;c.lineWidth=near?8:7;c.beginPath();c.moveTo(lerp(x1,x2,0.72),lerp(y1,y2,0.72));c.lineTo(x2,y2);c.stroke();}
   };
-  const by=-46+bob;
+  const by=-60+bob;
   // 奥の脚
-  leg(22,by+10,ff,true,false);leg(-30,by+6,bf,false,false);
+  leg(32,by+8,ff,true,false);leg(-40,by+6,bf,false,false);
   // しっぽ（先が白）
-  const tx=-38,ty=by-6,ex=tx-38*Math.cos(tail),ey=ty-18-30*Math.sin(tail);
+  const tx=-50,ty=by-4,ex=tx-38*Math.cos(tail),ey=ty-18-30*Math.sin(tail);
   c.strokeStyle=K;c.lineWidth=10;c.beginPath();c.moveTo(tx,ty);c.quadraticCurveTo(tx-22,ty-4,ex,ey);c.stroke();
   c.fillStyle=Wt;c.beginPath();c.arc(ex,ey,5.5,0,7);c.fill();
   // 胴体
-  c.fillStyle=K;c.beginPath();c.ellipse(0,by,40,19,0,0,7);c.fill();
-  c.fillStyle=Wt;c.beginPath();c.ellipse(10,by+14,24,6.5,0.05,0,7);c.fill();
-  c.fillStyle=K;c.beginPath();c.ellipse(-4,by+6,34,13,0,0,7);c.fill();
+  c.fillStyle=K;c.beginPath();c.ellipse(-2,by,54,12.5,0,0,7);c.fill();
+  c.beginPath();c.ellipse(24,by+1,24,14.5,0,0,7);c.fill();
+  c.fillStyle=Wt;c.beginPath();c.ellipse(16,by+11,30,4.2,0.03,0,7);c.fill();
+  c.fillStyle=K;c.beginPath();c.ellipse(-10,by+2,44,9.5,0,0,7);c.fill();
   // 首
-  c.fillStyle=K;c.beginPath();c.ellipse(32,by-12,14,19,-0.55,0,7);c.fill();
-  c.fillStyle=Wt;c.beginPath();c.ellipse(38,by+2,9,15,-0.25,0,7);c.fill();
+  c.fillStyle=K;c.beginPath();c.ellipse(44,by-14,11,19,-0.55,0,7);c.fill();
+  c.fillStyle=Wt;c.beginPath();c.ellipse(49,by+1,7.5,13,-0.25,0,7);c.fill();
   // 手前の脚
-  leg(24,by+10,fa,true,true);leg(-28,by+8,ba,false,true);
-  // 首輪
-  c.strokeStyle=R;c.lineWidth=6.5;c.beginPath();c.moveTo(26,by-22);c.quadraticCurveTo(36,by-6,44,by-12);c.stroke();
-  c.fillStyle=F||'#d7dbe2';c.beginPath();c.arc(41,by-7,3.4,0,7);c.fill();
+  leg(34,by+8,fa,true,true);leg(-38,by+6,ba,false,true);
+  // 赤い首輪
+  c.strokeStyle=F||(G?'#c41d22':'#9e1418');c.lineWidth=10;c.beginPath();c.moveTo(37,by-27);c.quadraticCurveTo(46,by-10,57,by-16);c.stroke();
+  c.strokeStyle=R;c.lineWidth=7;c.beginPath();c.moveTo(37,by-27);c.quadraticCurveTo(46,by-10,57,by-16);c.stroke();
+  c.fillStyle=F||'#d7dbe2';c.beginPath();c.arc(53,by-9,4.2,0,7);c.fill();if(!F){c.fillStyle='#8a8f99';c.beginPath();c.arc(53,by-9,1.8,0,7);c.fill();}
   // 頭
-  c.save();c.translate(46,by-28);c.rotate(headA+(ps==='fly'||ps==='swim'?0.25:ps==='glide'?0.12:0));
+  c.save();c.translate(58,by-32);c.rotate(headA+(ps==='fly'||ps==='swim'?0.25:ps==='glide'?0.12:0));
   const ear=(bx,byy,tipx,tipy,col,inner)=>{c.save();c.translate(bx,byy);c.rotate(earA);c.scale(earS,earS);
     c.fillStyle=col;c.beginPath();c.moveTo(-6,2);c.quadraticCurveTo(tipx-4,tipy+10,tipx,tipy);c.quadraticCurveTo(tipx+6,tipy+14,7,1);c.closePath();c.fill();
     if(inner){c.fillStyle=F||'#5d4b55';c.beginPath();c.moveTo(-2,0);c.quadraticCurveTo(tipx-1,tipy+14,tipx+1,tipy+7);c.quadraticCurveTo(tipx+4,tipy+16,4,0);c.fill();}c.restore();};
@@ -821,7 +820,7 @@ function drawEnemy(e){
     for(let i=0;i<12;i++){const a=i/12*Math.PI*2;ctx.beginPath();ctx.moveTo(Math.cos(a)*30,Math.sin(a)*30);ctx.lineTo(Math.cos(a)*44,Math.sin(a)*44);ctx.stroke();}
     ctx.beginPath();ctx.arc(0,0,33,0,7);ctx.fill();ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(-12,-8,8,0,7);ctx.fill();ctx.fillStyle='#231543';ctx.beginPath();ctx.arc(-14,-8,4,0,7);ctx.fill();ctx.fillStyle='#e0262b';ctx.beginPath();ctx.arc(-26,6,5,0,7);ctx.fill();}
   else if(e.k==='bub'){ctx.rotate(Math.sin(e.ph*8)*0.12);ctx.fillStyle='#fff';ctx.strokeStyle='#ff4f7b';ctx.lineWidth=5;ctx.beginPath();ctx.roundRect(-52,-30,104,60,24);ctx.fill();ctx.stroke();
-    ctx.beginPath();ctx.moveTo(30,26);ctx.lineTo(50,44);ctx.lineTo(16,28);ctx.fill();ctx.fillStyle='#ff2d55';ctx.font='30px "Dela Gothic One",sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(e.txt,0,2);}
+    ctx.beginPath();ctx.moveTo(30,26);ctx.lineTo(50,44);ctx.lineTo(16,28);ctx.fill();ctx.drawImage(emo('💢'),-24,-26,48,48);}
   ctx.restore();
 }
 function drawCloudPad(x,y,w){ctx.fillStyle='#fff';for(let i=0;i<5;i++){ctx.beginPath();ctx.arc(x-w/2+i*w/4,y+Math.sin(tAll*2+i)*3,w*0.22,0,7);ctx.fill();}}
@@ -857,15 +856,6 @@ function drawRin(){
   const trail=rin.dash>0||rin.sup>0||rin.boost>0||sp>1300;
   if(trail){const col=gold?'rgba(255,210,63,':rin.dash>0?'rgba(127,211,255,':'rgba(255,158,199,';
     for(let i=0;i<hist.length-2;i+=2){const h=hist[i],al=(i/hist.length)*0.45;ctx.save();ctx.translate(h.x,h.y);ctx.rotate(h.rot);drawDog(ctx,h.pose,h.ph,{flat:col+al+')',spin:h.spin,sp});ctx.restore();}}
-  // スカーフ（首輪から伸びる赤い布）
-  const up={x:Math.sin(rin.rot),y:-Math.cos(rin.rot)},fw={x:Math.cos(rin.rot),y:Math.sin(rin.rot)};
-  const nk=ps==='ball'?{x:rin.x+up.x*36,y:rin.y+up.y*36}:{x:rin.x+fw.x*30+up.x*62,y:rin.y+fw.y*30+up.y*62};
-  scarf.unshift(nk);if(scarf.length>9)scarf.pop();
-  if(ps!=='ball'){
-    ctx.strokeStyle=gold?'#ffe27a':'#e0262b';ctx.lineCap='round';
-    for(let i=1;i<scarf.length;i++){const p0=scarf[i-1],p1=scarf[i],k=Math.min(1,(p0.x-p1.x+30)/30);
-      const w=Math.sin(tAll*20+i)*6*k;ctx.lineWidth=12-i*1.1;ctx.beginPath();ctx.moveTo(p0.x-(i===1?0:0),p0.y);ctx.lineTo(p1.x-8*(1-k)*i,p1.y+w+(1-k)*i*5);ctx.stroke();}
-  }
   if(gold||rin.dash>0){const c=rinC(),g=ctx.createRadialGradient(c.x,c.y,10,c.x,c.y,120);g.addColorStop(0,gold?'rgba(255,220,80,.55)':'rgba(127,211,255,.5)');g.addColorStop(1,'rgba(255,220,80,0)');ctx.fillStyle=g;ctx.beginPath();ctx.arc(c.x,c.y,120,0,7);ctx.fill();}
   if(rin.dash>0){const c=rinC();ctx.save();ctx.translate(c.x,c.y);ctx.rotate(rin.rot);ctx.strokeStyle='rgba(255,255,255,.8)';ctx.lineWidth=6;
     for(let i=0;i<3;i++){ctx.globalAlpha=0.8-i*0.25;ctx.beginPath();ctx.arc(20-i*26,0,70+i*14,-0.9,0.9);ctx.stroke();}ctx.restore();ctx.globalAlpha=1;}
@@ -931,9 +921,7 @@ function drawHero(){
   const fl=['🍙','🍣','🍖','🍰','🍕','🍩','🍗','🍜'];
   fl.forEach((e,i)=>{const a=tAll*0.6+i/fl.length*Math.PI*2,r=h*0.4;const s=52+(i%3)*10;hx.drawImage(emo(e),w*0.52+Math.cos(a)*r*1.15-s/2,h*0.5+Math.sin(a)*r*0.8-s/2,s,s);});
   hx.strokeStyle='rgba(255,255,255,.7)';hx.lineWidth=5;hx.lineCap='round';for(let i=0;i<5;i++){const y=h*(0.36+i*0.07),o=(tAll*600+i*90)%220;hx.beginPath();hx.moveTo(w*0.05+o*0.2,y);hx.lineTo(w*0.3-o*0.3,y);hx.stroke();}
-  hx.save();hx.translate(w*0.5,h*0.72);hx.scale(2.6,2.6);hx.rotate(-0.08);
-  hx.strokeStyle='#e0262b';hx.lineCap='round';
-  for(let i=0;i<6;i++){hx.lineWidth=11-i*1.4;hx.beginPath();hx.moveTo(30-i*14,-60+Math.sin(tAll*14+i)*3*i*0.4);hx.lineTo(16-i*14,-58+Math.sin(tAll*14+i+1)*3*(i+1)*0.4);hx.stroke();}
+  hx.save();hx.translate(w*0.47,h*0.78);hx.scale(2.25,2.25);hx.rotate(-0.08);
   drawDog(hx,'run',tAll*3.2,{sp:1500});hx.restore();
 }
 
@@ -945,7 +933,6 @@ function toTitle(){state='title';resetWorld(true);scr('title');showPlayUI(false)
 function startGame(){
   AU.init();if(AU.c&&AU.c.state==='suspended')AU.c.resume();AU.bgm=true;
   resetWorld(false);scr(null);showPlayUI(true);hudCache={};state='count';countT=3.2;inp.held=false;inp.pressed=false;
-  say('sumire','今日こそ白黒つけるよ、リン！ 私のほうが上なんだから！');
 }
 function pause(){if(state!=='play')return;state='pause';scr('pause');}
 function resume(){state='play';scr(null);inp.held=false;}
@@ -956,9 +943,6 @@ function showResult(){
   $('resRank').textContent=rank;$('resRank').className='rank '+rank;
   $('resHead').textContent=win?'すみれより先にゴール！':'すみれに先をこされた…';
   $('rTime').textContent=fmt(rinFinish);$('rFood').textContent=eaten+'こ';$('rCombo').textContent=maxCombo;$('rSpd').textContent=Math.round(topSp*0.11)+'km/h';$('rScore').textContent=score;
-  const sl=$('rSumi');sl.innerHTML='';const b1=document.createElement('b');b1.textContent='すみれ「';sl.append(b1,win?'くっ……今日のところは認めてあげる。今日だけね！':'ほらね、私のほうが上。リンは下！','」');
-  const fl=$('rFam');fl.innerHTML='';const b2=document.createElement('b');b2.textContent='かすみ「';const b3=document.createElement('b');b3.textContent='そうま「';
-  fl.append(b2,'リン、寝ながら口がもぐもぐしてたよ……」　',b3,eaten>totalFood*0.5?'いっぱい食べる夢だったんだね」':'いい夢みてたんだね」');
   const best=store.get('rin_best');let nb=false;
   if(!best||score>best.score){store.set('rin_best',{time:rinFinish,food:eaten,score});nb=true;}
   $('rBest').textContent=nb?'じこベスト更新！':bestText();
