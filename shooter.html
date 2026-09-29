@@ -54,16 +54,16 @@ h1 small{display:block;font-size:.42em;color:var(--sky);text-shadow:none;margin-
 .tb{pointer-events:auto;height:42px;padding:0 10px;border-radius:12px;border:2px solid var(--paper);background:rgba(21,21,24,.55);font-weight:800;font-size:13px}
 #pauseBtn{width:42px;font-size:15px}
 #combo{position:fixed;right:max(14px,env(safe-area-inset-right));top:calc(env(safe-area-inset-top,0px) + 62px);z-index:10;pointer-events:none;text-align:right;
-  font-family:var(--f-disp);color:var(--gold);text-shadow:0 3px 0 #b8457c;font-size:24px;line-height:1}
-#combo small{display:block;font-size:13px;color:var(--paper);text-shadow:none;margin-top:3px;font-family:var(--f-body);font-weight:800}
+  font-family:var(--f-disp);color:var(--gold);text-shadow:0 2px 0 #b8457c;font-size:16px;line-height:1;opacity:.8}
+#combo small{display:block;font-size:11px;color:var(--paper);text-shadow:none;margin-top:3px;font-family:var(--f-body);font-weight:800}
 
-#talk{position:fixed;left:50%;transform:translateX(-50%);top:calc(env(safe-area-inset-top,0px) + 58px);z-index:11;pointer-events:none;
-  display:flex;align-items:center;gap:10px;background:rgba(255,250,242,.95);color:var(--ink);border-radius:16px;padding:8px 16px 8px 8px;
-  max-width:min(560px,calc(100vw - 32px));box-shadow:0 6px 0 rgba(0,0,0,.25);animation:talkIn .25s cubic-bezier(.2,1.5,.4,1) both}
-@keyframes talkIn{from{transform:translateX(-50%) scale(.7);opacity:0}to{transform:translateX(-50%) scale(1);opacity:1}}
-#talkFace{flex:none;width:40px;height:40px;border-radius:50%;display:grid;place-items:center;color:#fff;font-weight:800;font-size:17px}
-#talk b{display:block;font-size:12px;letter-spacing:.06em}
-#talk p{margin:0;font-size:15px;line-height:1.4;font-weight:800}
+#talk{position:fixed;left:max(12px,env(safe-area-inset-left));bottom:calc(env(safe-area-inset-bottom,0px) + 10px);z-index:11;pointer-events:none;
+  display:flex;align-items:center;gap:6px;background:rgba(21,21,24,.5);color:var(--paper);border-radius:999px;padding:3px 12px 3px 3px;
+  max-width:min(420px,calc(100vw - 150px));animation:talkIn .2s ease-out both}
+@keyframes talkIn{from{opacity:0}to{opacity:1}}
+#talkFace{flex:none;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;color:#fff;font-weight:800;font-size:11px}
+#talk b{display:none}
+#talk p{margin:0;font-size:12.5px;line-height:1.3;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
 #bombBtn{position:fixed;z-index:12;right:max(18px,env(safe-area-inset-right));bottom:calc(env(safe-area-inset-bottom,0px) + 16px);
   width:92px;height:92px;border-radius:50%;border:none;padding:0;
@@ -127,6 +127,7 @@ h1 small{display:block;font-size:.42em;color:var(--sky);text-shadow:none;margin-
         <button class="btn primary" id="startBtn">スタート</button>
         <button class="btn" id="howBtn">あそびかた</button>
         <button class="btn" id="soundBtn">音：ON</button>
+        <button class="btn" id="talkBtn">セリフ：ON</button>
         <button class="btn fsBtn" id="fsBtnT">全画面</button>
       </div>
       <p class="best" id="titleBest"></p>
@@ -159,6 +160,7 @@ h1 small{display:block;font-size:.42em;color:var(--sky);text-shadow:none;margin-
     </div>
     <div class="row" style="justify-content:center;margin-top:10px">
       <button class="btn" id="soundBtn2">音：ON</button>
+      <button class="btn" id="talkBtn2">セリフ：ON</button>
       <button class="btn fsBtn" id="fsBtnP">全画面</button>
       <button class="btn" id="quitBtn">タイトルへ</button>
     </div>
@@ -419,11 +421,13 @@ function burst(x,y,n,c,sp,s){for(let i=0;i<n;i++){const a=Math.random()*Math.PI*
 function ring(x,y,c,r,life){part({x,y,t:'ring',c,s:r||30,life:life||0.4,max:life||0.4});}
 function popT(x,y,txt,c,s){part({x,y,vy:-90,t:'txt',txt,c:c||'#fff',s:s||20,life:0.8,max:0.8});}
 let banners=[];
-function big(txt,c,s){banners=[{txt,c:c||'#ffd23f',s:s||1,t:0,max:1.8}];}
+function big(txt,c,s){banners=[{txt,c:c||'#ffd23f',s:s||1,t:0,max:1.2}];}
 let talkTimer=0;
 const WHO={sumire:['すみれ','#9b6bff','す'],kasumi:['かすみ','#ff4f7b','か'],soma:['そうま','#3b82f6','そ'],yuichi:['ゆういち','#2f9e64','ゆ'],rin:['リン','#18181c','リ']};
-function say(who,txt,dur){const w=WHO[who];$('talkName').textContent=w[0];$('talkText').textContent=txt;const f=$('talkFace');f.textContent=w[2];f.style.background=w[1];
-  const t=$('talk');t.hidden=true;void t.offsetWidth;t.hidden=false;talkTimer=dur||2.8;}
+let talkOn=store.get('rin_talk')!==false;
+function setTalk(on){talkOn=on;store.set('rin_talk',on);$('talkBtn').textContent=$('talkBtn2').textContent='セリフ：'+(on?'ON':'OFF');if(!on)$('talk').hidden=true;}
+function say(who,txt,dur){if(!talkOn)return;const w=WHO[who];$('talkName').textContent=w[0];$('talkText').textContent=txt;const f=$('talkFace');f.textContent=w[2];f.style.background=w[1];
+  const t=$('talk');t.hidden=true;void t.offsetWidth;t.hidden=false;talkTimer=Math.min(dur||2,2.2);}
 
 /* ================= 敵と弾 ================= */
 let gid=0;
@@ -482,7 +486,7 @@ const TL=[
     [48,()=>startWarn()]
   ]
 ];
-function startWarn(){warnT=3;AU.sfx('warn');say(stage===2?'kasumi':'rin',stage===2?'リン！ おやつ食べすぎでしょ！':stage===1?'ワン！（海の主が来る…！）':'ワン！（大きいのが来る！）',3);}
+function startWarn(){warnT=3;AU.sfx('warn');if(stage===2)say('kasumi','リン！ おやつ食べすぎでしょ！');}
 
 /* ================= ボス ================= */
 function makeBoss(){
@@ -496,15 +500,14 @@ function updBoss(dt){
   if(b.dead>0){b.dead-=dt;shake=Math.max(shake,6);if(Math.random()<0.5){burst(b.x+rnd(-60,60),b.y+rnd(-60,60),10,pick(['#ffd23f','#ff9f1a','#fff']),300);AU.sfx('pop');}
     if(b.dead<=0){boss=null;flash=0.5;shake=20;AU.sfx('boom');clearT=4.2;AU.mode=0;
       for(let i=0;i<14;i++)items.push({x:b.x+rnd(-60,60),y:b.y+rnd(-60,60),vx:rnd(-160,40),vy:rnd(-160,160),k:'food',e:pick(STAGES[stage].foods),big:true});
-      if(stage===2)say('kasumi','もう…しょうがないなあ。はい、ごほうび。',3.5);else say('rin','ワオーン！',2);
+      if(stage===2)say('kasumi','もう…しょうがないなあ。はい、ごほうび。',3.5);
       big('ステージクリア！','#ffd23f',1.1);AU.sfx('clear');}
     return;}
   b.x=lerp(b.x,b.tx,Math.min(1,dt*1.5));b.y=270+Math.sin(b.t*0.9)*(stage===2?150:120);
   if(b.x>VW)return;
   const ph=bossPhase();
   if(ph!==b.phase){b.phase=ph;b.cd=1.2;ebul.forEach(q=>q.dead=true);flash=0.2;
-    if(stage===2)say('kasumi',ph===1?'こら！ まてー！':'いいかげんにしなさーい！！',2.6);
-    else say('rin',ph===1?'ワン！（おこってきた！）':'ワンワン！（あと少し！）',2);}
+    if(stage===2)say('kasumi',ph===1?'こら！ まてー！':'いいかげんにしなさーい！');}
   b.cd-=dt;b.cd2-=dt;
   const mx=b.x-40,my=b.y;
   if(stage===0){
@@ -529,23 +532,23 @@ function updBoss(dt){
 /* ================= 仲間 ================= */
 function npc(who,x,y){
   const n={who,x,y,t:0,hp:6,done:false};npcs.push(n);
-  if(who==='soma')say('soma','リン、おやつあげるよ〜！ こっちこっち！',3);
-  if(who==='yuichi')say('rin','ワン？（ゆういちが寝てる…ショットで起こそう）',3);
+  if(who==='soma')say('soma','リン、こっちこっち！');
+  if(who==='yuichi')say('yuichi','zzz…（ショットで起こせる）');
   if(who==='sumire'){say('sumire','リン、手伝ってあげる！',2.6);helper={x:-60,y:rin.y-70,t:18,cd:0};n.done=true;}
 }
 function updNpcs(dt){
   for(const n of npcs){n.t+=dt;if(n.who==='sumire')continue;
     n.x-=(n.who==='yuichi'?70:110)*dt;
-    if(n.who==='soma'&&!n.done&&Math.hypot(n.x-rin.x,n.y-rin.y)<90){n.done=true;startSuper();say('soma','いけー！ スーパーリン！',2.2);}
+    if(n.who==='soma'&&!n.done&&Math.hypot(n.x-rin.x,n.y-rin.y)<90){n.done=true;startSuper();}
     if(n.who==='yuichi'&&!n.done&&n.hp<=0){n.done=true;say('yuichi','ん…？ リンか。ポテトいる？',3);AU.sfx('pow');
       for(let i=0;i<30;i++)later(i*0.05,()=>items.push({x:n.x+rnd(-20,20),y:n.y-60,vx:rnd(-220,120),vy:rnd(-320,-80),k:'food',e:'🍟',g:260}));}
   }
   npcs=npcs.filter(n=>n.x>-200);
   if(helper){const h=helper;h.t-=dt;const tx=h.t>0?rin.x-10:-200,ty=rin.y-80;h.x=lerp(h.x,tx,Math.min(1,dt*3));h.y=lerp(h.y,clamp(ty,40,VH-40),Math.min(1,dt*3));
     h.cd-=dt;if(h.t>0&&h.cd<=0){h.cd=0.2;shots.push({x:h.x+30,y:h.y-40,vx:760,vy:0,d:1,k:'star'});}
-    if(h.t<=0&&h.x<-150)helper=null;if(h.t>0&&h.t-dt<=0)say('sumire','じゃあね！ がんばって！',2);}
+    if(h.t<=0&&h.x<-150)helper=null;}
 }
-function startSuper(){rin.sup=7;big('スーパーリン！','#ffd23f',1.1);AU.sfx('super');shake=10;ring(rin.x,rin.y,'#ffd23f',70,0.6);burst(rin.x,rin.y,26,'#ffd23f',400);}
+function startSuper(){rin.sup=7;popT(rin.x,rin.y-55,'スーパーリン！','#ffd23f',20);AU.sfx('super');shake=10;ring(rin.x,rin.y,'#ffd23f',70,0.6);burst(rin.x,rin.y,26,'#ffd23f',400);}
 
 /* ================= リン ================= */
 const PX=16,PY=-2; // 胸の当たり判定（リン中心からの位置）
@@ -560,7 +563,7 @@ function fire(){
 }
 function useBomb(){
   if(bombs<=0||bombFx||!rin.alive)return;bombs--;bombFx={x:rin.x,y:rin.y,t:0};rin.inv=Math.max(rin.inv,1.6);
-  AU.sfx('bomb');shake=16;flash=0.25;popT(rin.x+40,rin.y-60,'ワンワン！','#ffd23f',32);
+  AU.sfx('bomb');shake=16;flash=0.25;popT(rin.x+40,rin.y-55,'ワンワン！','#ffd23f',22);
   for(const b of ebul){b.dead=true;items.push({x:b.x,y:b.y,vx:-40,vy:0,k:'star'});}
   for(const e of enemies)damage(e,40);if(boss&&boss.x<VW)hitBoss(45);
 }
@@ -570,7 +573,7 @@ function hurt(){
   burst(rin.x,rin.y,24,'#ff9ec7',420);ring(rin.x,rin.y,'#fff',60,0.5);
   for(const b of ebul)b.dead=true;
   if(hearts<=0){rin.alive=false;big('リンは目をさました…','#ff9ec7',0.9);setTimeout(()=>{if(state==='play')showResult(false);},1800);}
-  else popT(rin.x,rin.y-60,'いたっ！','#ff9ec7',26);
+  
 }
 function updRin(dt){
   if(!rin.alive)return;
@@ -592,20 +595,20 @@ function damage(e,d){if(!e.alive)return;e.hp-=d;e.hit=0.08;if(e.hp<=0)killE(e);}
 function killE(e){
   e.alive=false;kills++;addCombo();const p=Math.round(e.pt*mult());score+=p;
   AU.sfx(e.r>24?'boom':'pop');burst(e.x,e.y,e.r>24?22:12,e.k==='fugu'?'#ffcf3f':e.k==='meteor'||e.k==='rock'?'#b8a58f':'#ffb347',e.r>24?420:300);ring(e.x,e.y,'#fff',e.r+14,0.35);
-  shake=Math.max(shake,e.r>24?7:3);if(e.r>24)popT(e.x,e.y-30,'+'+p,'#ffd23f',20);
+  shake=Math.max(shake,e.r>24?7:3);
   if(Math.random()<(e.r>24?1:0.45))items.push({x:e.x,y:e.y,vx:rnd(-80,20),vy:rnd(-80,80),k:'food',e:pick(STAGES[stage].foods),big:e.r>24});
   if(e.heart)items.push({x:e.x,y:e.y,vx:-50,vy:0,k:'heart'});
-  if(e.g&&groups[e.g]){const G=groups[e.g];G.k++;if(G.k>=G.n){items.push({x:e.x,y:e.y,vx:-40,vy:0,k:'pow'});popT(e.x,e.y-40,'ぜんめつ！','#7fd3ff',22);delete groups[e.g];}}
+  if(e.g&&groups[e.g]){const G=groups[e.g];G.k++;if(G.k>=G.n){items.push({x:e.x,y:e.y,vx:-40,vy:0,k:'pow'});delete groups[e.g];}}
   if(e.k==='fugu')ringB(e.x,e.y,6,100,Math.random(),{c:'#ffb000',r:6});
   if(e.k==='meteor')for(let i=0;i<3;i++)E('rock',e.x,e.y,{vx:-rnd(120,220),vy:rnd(-120,120)});
 }
-function hitBoss(d){const b=boss;if(!b||b.dead>0)return;b.hp-=d;b.hit=0.06;score+=Math.round(d*5);if(b.hp<=0){b.hp=0;b.dead=2.2;ebul.forEach(q=>q.dead=true);kills++;score+=[10000,15000,30000][stage];big('ドッカーン！！','#ff5a1f',1);}}
+function hitBoss(d){const b=boss;if(!b||b.dead>0)return;b.hp-=d;b.hit=0.06;score+=Math.round(d*5);if(b.hp<=0){b.hp=0;b.dead=2.2;ebul.forEach(q=>q.dead=true);kills++;score+=[10000,15000,30000][stage];}}
 function eatItem(it){
-  if(it.k==='pow'){if(rin.lv<5){rin.lv++;big(rin.lv===5?'パワー MAX！':'パワーアップ！','#7fd3ff',0.8);}else{score+=1000;popT(it.x,it.y-30,'+1000','#ffd23f');}AU.sfx('pow');ring(rin.x,rin.y,'#7fd3ff',60,0.5);return;}
-  if(it.k==='heart'){if(hearts<5)hearts++;else score+=2000;AU.sfx('heart');popT(it.x,it.y-30,'ハート +1','#ff9ec7',22);return;}
+  if(it.k==='pow'){if(rin.lv<5){rin.lv++;popT(rin.x,rin.y-50,rin.lv===5?'MAX!':'POWER UP','#7fd3ff',18);}else{score+=1000;popT(it.x,it.y-30,'+1000','#ffd23f');}AU.sfx('pow');ring(rin.x,rin.y,'#7fd3ff',60,0.5);return;}
+  if(it.k==='heart'){if(hearts<5)hearts++;else score+=2000;AU.sfx('heart');popT(it.x,it.y-30,'♥+1','#ff9ec7',18);return;}
   if(it.k==='star'){score+=10;return;}
   food++;addCombo();const p=Math.round((it.big?200:50)*mult());score+=p;bombG++;
-  if(bombG>=20){bombG=0;if(bombs<5){bombs++;popT(rin.x,rin.y-70,'ワンワン砲 +1','#ffd23f',22);AU.sfx('pow');}}
+  if(bombG>=20){bombG=0;if(bombs<5){bombs++;popT(rin.x,rin.y-55,'ワンワン+1','#ffd23f',16);AU.sfx('pow');}}
   AU.sfx('eat',combo);burst(it.x,it.y,4,pick(['#fff','#ffd23f','#ff9ec7']),160,4);
 }
 
@@ -626,7 +629,7 @@ function update(dt){
     if(s.x>VW+40||s.y<-40||s.y>VH+40){s.dead=true;continue;}
     for(const e of enemies){if(!e.alive)continue;const dx=e.x-s.x,dy=e.y-s.y,r=e.r+(s.k==='big'?12:6);if(dx*dx+dy*dy<r*r){s.dead=true;damage(e,s.d);AU.sfx('hit');part({x:s.x,y:s.y,t:'dot',c:'#fff',s:4,life:.15,max:.15});break;}}
     if(!s.dead&&boss&&boss.dead<=0){const dx=boss.x-s.x,dy=boss.y-s.y,r=boss.r+8;if(dx*dx+dy*dy<r*r){s.dead=true;hitBoss(s.d);AU.sfx('hit');part({x:s.x,y:s.y,t:'dot',c:'#fff',s:5,life:.15,max:.15});}}
-    if(!s.dead)for(const n of npcs){if(n.who==='yuichi'&&!n.done&&Math.abs(n.x-s.x)<50&&Math.abs(n.y-30-s.y)<40){s.dead=true;n.hp--;popT(n.x,n.y-70,'zzz','#fff',18);}}
+    if(!s.dead)for(const n of npcs){if(n.who==='yuichi'&&!n.done&&Math.abs(n.x-s.x)<50&&Math.abs(n.y-30-s.y)<40){s.dead=true;n.hp--;}}
   }
   shots=shots.filter(s=>!s.dead);
   // 敵
@@ -831,9 +834,9 @@ function render(){
     // ボスHP
     if(boss&&boss.x<VW+40){const w=Math.min(420,VW*0.5),x=(VW-w)/2,y=58;ctx.fillStyle='rgba(21,21,24,.6)';ctx.beginPath();ctx.roundRect(x-6,y-6,w+12,26,10);ctx.fill();
       ctx.fillStyle='#ff5a7a';ctx.fillRect(x,y,w*boss.hp/boss.mhp,14);ctx.fillStyle='#fff';ctx.font='12px "M PLUS Rounded 1c",sans-serif';ctx.textAlign='left';ctx.textBaseline='top';ctx.fillText(STAGES[stage].boss,x,y+16);}
-    if(warnT>0&&Math.floor(warnT*3)%2===0){ctx.fillStyle='rgba(224,38,43,.25)';ctx.fillRect(0,VH/2-44,VW,88);ctx.fillStyle='#fff';ctx.font='44px "Dela Gothic One",sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('WARNING',VW/2,VH/2);}
-    for(const b of banners){const t=b.t,sc=b.s*(t<0.2?lerp(2,1,t/0.2):1),a=t>b.max-0.3?(b.max-t)/0.3:1;ctx.globalAlpha=clamp(a,0,1);ctx.save();ctx.translate(VW/2,VH*0.36);ctx.scale(sc,sc);
-      ctx.font='40px "Dela Gothic One",sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.lineWidth=8;ctx.strokeStyle='rgba(21,21,24,.85)';ctx.strokeText(b.txt,0,0);ctx.fillStyle=b.c;ctx.fillText(b.txt,0,0);ctx.restore();ctx.globalAlpha=1;}
+    if(warnT>0&&Math.floor(warnT*3)%2===0){ctx.fillStyle='rgba(224,38,43,.25)';ctx.fillRect(0,VH*0.2-24,VW,48);ctx.fillStyle='#fff';ctx.font='28px "Dela Gothic One",sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('WARNING',VW/2,VH*0.2);}
+    for(const b of banners){const t=b.t,sc=b.s*(t<0.15?lerp(1.4,1,t/0.15):1),a=t>b.max-0.3?(b.max-t)/0.3:1;ctx.globalAlpha=clamp(a,0,1);ctx.save();ctx.translate(VW/2,VH*0.2);ctx.scale(sc,sc);
+      ctx.font='28px "Dela Gothic One",sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.lineWidth=6;ctx.strokeStyle='rgba(21,21,24,.85)';ctx.strokeText(b.txt,0,0);ctx.fillStyle=b.c;ctx.fillText(b.txt,0,0);ctx.restore();ctx.globalAlpha=1;}
   }
   if(fadeW>0){ctx.fillStyle=`rgba(255,255,255,${fadeW})`;ctx.fillRect(0,0,VW,VH);}
   if(flash>0){ctx.fillStyle=`rgba(255,255,255,${flash*0.6})`;ctx.fillRect(0,0,VW,VH);}
@@ -870,7 +873,7 @@ const scr=id=>['title','howto','pause','result'].forEach(s=>$(s).hidden=s!==id);
 function showPlayUI(on){$('hud').hidden=!on;$('pad').hidden=!on;if(!on){$('combo').hidden=true;$('talk').hidden=true;}}
 function bestText(){const b=store.get('rin_shoot_best');return b?`じこベスト　スコア ${b.score}　${b.clear?'クリア':'ステージ'+(b.stage+1)+'まで'}`:'';}
 function toTitle(){state='title';stage=0;boss=null;scr('title');showPlayUI(false);AU.bgm=false;$('titleBest').textContent=bestText();}
-function begin(){AU.init();if(AU.c&&AU.c.state==='suspended')AU.c.resume();AU.bgm=true;AU.mode=0;scr(null);showPlayUI(true);hc={};state='play';drag=null;$('dragHint').hidden=false;pend.length=0;fadeW=0;$('talk').hidden=true;talkTimer=0;}
+function begin(){AU.init();if(AU.c&&AU.c.state==='suspended')AU.c.resume();AU.bgm=true;AU.mode=0;scr(null);showPlayUI(true);hc={};state='play';drag=null;$('dragHint').hidden=false;setTimeout(()=>$('dragHint').hidden=true,3000);pend.length=0;fadeW=0;$('talk').hidden=true;talkTimer=0;}
 function startGame(){begin();resetRun();}
 function continueStage(){const sn=stage,sc=stageScore,lv=Math.max(2,stageLv);begin();score=Math.floor(sc/2);hearts=3;bombs=3;bombG=0;startStage(sn,lv);}
 function pause(){if(state!=='play')return;state='pause';scr('pause');drag=null;}
@@ -903,7 +906,7 @@ $('soundBtn').onclick=$('soundBtn2').onclick=()=>{AU.init();AU.set(!AU.on);};
 $('pauseBtn').onclick=pause;$('resumeBtn').onclick=resume;$('retryBtn').onclick=startGame;$('quitBtn').onclick=toTitle;
 $('againBtn').onclick=startGame;$('contBtn').onclick=continueStage;$('toTitleBtn').onclick=toTitle;
 document.addEventListener('visibilitychange',()=>{if(document.hidden&&state==='play')pause();});
-AU.set(AU.on);
+AU.set(AU.on);setTalk(talkOn);$('talkBtn').onclick=$('talkBtn2').onclick=()=>setTalk(!talkOn);
 
 /* ================= ループ ================= */
 let last=performance.now();
